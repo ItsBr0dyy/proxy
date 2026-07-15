@@ -8,6 +8,10 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
+ARG GIT_COMMIT=unknown
+
+ENV GIT_COMMIT=$GIT_COMMIT
+
 RUN bun run build
 
 ENV NODE_ENV=production

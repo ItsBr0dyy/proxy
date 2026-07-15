@@ -22,7 +22,9 @@ app.get("/", (_req, res) => {
         endpoints: {
             health: "/health",
             proxy: "/proxy?url=https://itsbr0dyy.dev/api"
-        }
+        },
+        commit: process.env.GIT_COMMIT ?? "unknwon",
+        repository: "https://github.com/itsbr0dyy/proxy"
     });
 });
 
