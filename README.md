@@ -11,3 +11,9 @@ bun i
 bun run build
 bun start
 ```
+
+to pull from this repo with the shell script run
+```
+chmod +x update.sh
+./update.sh
+```
