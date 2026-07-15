@@ -29,7 +29,19 @@ export function registerMiddleware(app: Application) {
             }
         })
     );
-    app.use(morgan('combined'));
+    app.use(
+        morgan((tokens, req,res) => {
+            return JSON.stringify({
+                requestId: res.getHeader("X-Request-ID"),
+                ip: tokens["remote-addr"](req, res),
+                method: tokens.method(req, res),
+                path: tokens.url(req, res),
+                status: tokens.status(req, res),
+                userAgent: tokens["user-agent"](req, res),
+                responseTime: `${tokens["response-time"](req, res)}ms`
+            });
+        })
+    );
     app.use(requireApiKey);
     app.use(
         express.json({
