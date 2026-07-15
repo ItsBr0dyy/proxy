@@ -4,10 +4,12 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import morgan from "morgan";
 import express from "express";
+import { randomUUID } from "crypto";
 import type { Application, NextFunction, Request, Response } from "express";
 import config from './config.js';
 
 export function registerMiddleware(app: Application) {
+    app.use(requestId);
     app.use(helmet());
     app.use(compression());
     app.use(
@@ -66,6 +68,25 @@ function requireApiKey(
             error: 'invalid api key'
         });
     }
+
+    next();
+}
+
+function requestId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const id = randomUUID();
+
+    res.locals.requestId = id;
+
+    req.headers["x-request-id"] = id;
+
+    res.setHeader(
+        "X-Request-ID",
+        id
+    );
 
     next();
 }
