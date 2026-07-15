@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "build": "tsc",
-    "start": "bun dist/index.js"
+    "start": "bun dist/index.js",
+    "docker:build": "GIT_COMMIT=$(git rev-parse --short HEAD) docker compose up --build"
   },
   "dependencies": {
     "compression": "^1.8.1",
