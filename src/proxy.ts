@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import config from "./config.js";
+import { getCache, setCache } from "./cache.js";
 
 interface NodeRequestInit extends RequestInit {
 	duplex?: "half";
@@ -55,6 +56,24 @@ export async function proxyRequest(
 	try {
 		const target = getTargetUrl(req);
 
+		const cacheKey = target.toString();
+
+		if (req.method === "GET") {
+			const cached = getCache(cacheKey);
+
+			if (cached) {
+				res.setHeader("X-Cache", "HIT");
+
+				for (const [key, value] of Object.entries(cached.headers)) {
+					res.setHeader(key, value);
+				}
+
+				return res.status(cached.status).send(cached.body);
+			}
+		}
+
+		res.setHeader("X-Cache", "MISS");
+
 		controller = new AbortController();
 
 		const timeout = setTimeout(() => {
@@ -88,6 +107,43 @@ export async function proxyRequest(
         const response = await fetch(target, options);
 
 		clearTimeout(timeout);
+
+		// clearTimeout(timeout);
+		// res.status(response.status);
+
+		// const responseHeaders =
+		// 	cleanHeaders(response.headers);
+
+		// for (const [key, value] of responseHeaders) {
+		// 	res.setHeader(key, value);
+		// }
+
+		// if (!response.body) {
+		// 	return res.end();
+		// }
+
+		// const reader =
+		// 	response.body.getReader();
+
+		// while (true) {
+		// 	const { done, value } =
+		// 		await reader.read();
+
+		// 	if (done) {
+		// 		break;
+		// 	}
+
+		// 	res.write(
+		// 		Buffer.from(value)
+		// 	);
+		// }
+
+		// res.end();
+
+		const body = Buffer.from(
+			await response.arrayBuffer()
+		);
+
 		res.status(response.status);
 
 		const responseHeaders =
@@ -97,27 +153,23 @@ export async function proxyRequest(
 			res.setHeader(key, value);
 		}
 
-		if (!response.body) {
-			return res.end();
-		}
-
-		const reader =
-			response.body.getReader();
-
-		while (true) {
-			const { done, value } =
-				await reader.read();
-
-			if (done) {
-				break;
-			}
-
-			res.write(
-				Buffer.from(value)
+		if (
+			req.method === "GET" &&
+			response.status === 200 &&
+			!req.headers.authorization
+		) {
+			setCache(
+				cacheKey,
+				{
+					body,
+					headers: Object.fromEntries(responseHeaders.entries()),
+					status: response.status
+				},
+				config.cacheTtl
 			);
 		}
 
-		res.end();
+		res.send(body);
 
 	} catch (error: any) {
 		if (

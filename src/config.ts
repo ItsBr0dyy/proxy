@@ -15,5 +15,6 @@ export default {
     rateLimit: number('RATE_LIMIT', 100),
     rateWindow: number('RATE_WINDOW', 60_000),
     bodyLimit: process.env.BODY_LIMIT ?? '200mb',
-    timeout: number('TIMEOUT', 30_000)
+    timeout: number('TIMEOUT', 30_000),
+    cacheTtl: Number(process.env.CACHE_TTL ?? 30000)
 };
