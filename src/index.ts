@@ -79,7 +79,7 @@ process.on(
 );
 
 process.on(
-    ":SIGINT",
+    "SIGINT",
     () => shutdown("SIGINT")
 );
 
