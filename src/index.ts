@@ -79,7 +79,7 @@ process.on(
 );
 
 process.on(
-    ":SIGINT",
+    "SIGINT",
     () => shutdown("SIGINT")
 );
 
@@ -100,5 +100,6 @@ process.on(
             "unhandled rejection:",
             error
         );
+        process.exit(1);
     }
 );
