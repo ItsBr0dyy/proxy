@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import config from "./config.js";
 import { getCache, setCache } from "./cache.js";
+import { validateProxyUrl } from "./urlValidator.js";
 
 interface NodeRequestInit extends RequestInit {
 	duplex?: "half";
@@ -54,7 +55,9 @@ export async function proxyRequest(
 	let controller: AbortController | undefined;
 
 	try {
-		const target = getTargetUrl(req);
+		const target = await validateProxyUrl(
+			getTargetUrl(req)
+		);
 
 		const cacheKey = target.toString();
 
