@@ -100,5 +100,6 @@ process.on(
             "unhandled rejection:",
             error
         );
+        process.exit(1);
     }
 );
